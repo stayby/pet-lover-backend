@@ -1,0 +1,6 @@
+*.js
+.env
+/dist
+nodemon.json
+/node_modules
+*.log

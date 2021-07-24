@@ -1,0 +1,26 @@
+component: koa # (required) name of the component. In that case, it's koa.
+app: pet-lover-serverless-api # (optional) serverless dashboard app. default is the same as the name property.
+name: pet-lover-api # (required) name of your koa component instance.
+
+inputs:
+  src:
+    hook: npm run build
+    src: ./ # (optional) path to the source folder. default is a hello world app.
+    exclude:
+      - .env
+  functionName: ${name} # 云函数名称。使用此配置文件中的name（组件实例名称）
+  region: ${env:REGION} # 部署目标地区。 更多参考 https://cloud.tencent.com/document/api/583/17238#.E5.9C.B0.E5.9F.9F.E5.88.97.E8.A1.A8
+  runtime: Nodejs12.16 # 运行环境。[Nodejs10.15, Nodejs12.16]
+  functionConf: # 函数配置
+    timeout: 30 # 超时时间，单位秒
+    vpcConfig: # 私有网络配置
+      vpcId: ${output:${stage}:${app}:pet-lover-vpc.vpcId}  # 私有网络Id
+      subnetId: ${output:${stage}:${app}:pet-lover-vpc.subnetId} # 子网Id
+    environment: # 环境变量
+      variables:
+        PG_CONNECT_STRING: ${output:${stage}:${app}:pet-lover-db.private.connectionString}
+  apigatewayConf: # API 网关
+    enableCORS: true # 允许跨域
+    protocols:
+      - http
+      - https
