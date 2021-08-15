@@ -1,63 +1,59 @@
-import { Table, Column, Model} from 'sequelize-typescript'
-import {NOW} from 'sequelize'
+import { Table, Column, Model } from "sequelize-typescript";
+import { NOW } from "sequelize";
 
 export const RoleLevel = {
   adopter: 1 << 0, // 领养人
-  salvor: 1 << 1,  // 救助人
-  ontributor: 1 << 2, // 协助人，
+  salvor: 1 << 1, // 救助人
+  contributor: 1 << 2, // 协助人，
   editor: 1 << 3, // 后台编辑
-  admin: 1 << 10
-}
+  admin: 1 << 10,
+};
 
 @Table({
   timestamps: true,
-  updatedAt: false
+  updatedAt: false,
 })
 export class User extends Model<User> {
-
   @Column
-  nickname: string
+  nickname: string;
 
   @Column // 0 -> female 1 -> male
-  gender: number
+  gender: number;
 
   //todo avatar
 
   @Column
-  email: string
+  email: string;
 
   @Column
-  phone: string
+  phone: string;
 
   @Column
-  password: string
+  password: string;
 
   @Column({
-    defaultValue: RoleLevel.adopter
+    defaultValue: RoleLevel.adopter,
   })
-  role: number
-
+  role: number;
 
   @Column({
-    defaultValue: NOW
+    defaultValue: NOW,
   })
   @Column
-  created_at: Date
+  created_at: Date;
 
   @Column({
-    defaultValue: NOW
+    defaultValue: NOW,
   })
   @Column
-  updated_at: Date
-
+  updated_at: Date;
 
   hasRole(...roles: number[]) {
     for (const role of roles) {
       if ((this.role & role) === role) {
-        return true
+        return true;
       }
     }
-    return false
+    return false;
   }
-
 }
