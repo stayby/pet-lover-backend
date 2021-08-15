@@ -1,3 +1,6 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 import Koa from 'koa'
 // import convert from 'koa-convert'
 import Router from 'koa-joi-router'
@@ -5,7 +8,6 @@ import routers from './routers'
 import bodyParser from 'koa-bodyparser'
 import cors from '@koa/cors'
 import { logger, acl } from './middleware'
-
 
 const _addRoute = Router.prototype._addRoute
 // const defaultInjectors = injectors(person_injector, attachment_injector)
