@@ -1,5 +1,7 @@
-import { Table, Column, Model } from "sequelize-typescript";
-import { NOW } from "sequelize";
+import { Table, Column, Model, IsIn, HasOne, DefaultScope, DataType } from "sequelize-typescript";
+import {Profile} from './Profile'
+import { RealInfo } from "./RealInfo";
+// import { NOW } from "sequelize";
 
 export const RoleLevel = {
   adopter: 1 << 0, // 领养人
@@ -9,44 +11,64 @@ export const RoleLevel = {
   admin: 1 << 10,
 };
 
-@Table({
-  timestamps: true,
-  updatedAt: false,
-})
+@DefaultScope(() => ({
+  attributes: { exclude: ['password', 'salt', 'hash'] },
+  include: [
+    {model: Profile},
+    {model: RealInfo}
+  ]
+}))
+@Table
 export class User extends Model<User> {
-  @Column
-  nickname: string;
 
-  @Column // 0 -> female 1 -> male
-  gender: number;
+  static accountStatus = {
+    NoProfile: 1,
+    NoRealInfo: 2,
+    Normal: 3,
+    Abnormal: 4
+  }
 
-  //todo avatar
-
-  @Column
-  email: string;
-
+  @Column({
+    unique: true
+  })
   @Column
   phone: string;
 
+  @Column({
+    unique: true
+  })
   @Column
-  password: string;
+  email: string;
 
+  @IsIn([Object.keys(RoleLevel).map(key => RoleLevel[key])])
   @Column({
     defaultValue: RoleLevel.adopter,
   })
   role: number;
 
   @Column({
-    defaultValue: NOW,
+    unique: true
   })
+  nickname: string;
+
   @Column
-  created_at: Date;
+  password: string;
 
   @Column({
-    defaultValue: NOW,
+    defaultValue: User.accountStatus.NoProfile,
+    type: DataType.ENUM(...Object.keys(User.accountStatus))
   })
-  @Column
-  updated_at: Date;
+  status: keyof typeof User.accountStatus
+
+  @HasOne(() => Profile, {
+    foreignKey: 'user_id',
+  } as any)
+  profile: Profile
+
+  @HasOne(() => RealInfo, {
+    foreignKey: 'user_id',
+  } as any)
+  real_info: RealInfo
 
   hasRole(...roles: number[]) {
     for (const role of roles) {

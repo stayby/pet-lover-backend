@@ -1,5 +1,7 @@
 import Router from 'koa-joi-router'
-import {User} from '../models'
+import lodash from 'lodash'
+import {User, Profile, RealInfo} from '../models'
+
 
 const Joi = Router.Joi
 
@@ -12,26 +14,7 @@ const email = Joi.string().email().lowercase().trim().required()
 
 const baseUserInfo = Joi.object({
   email,
-  password,
-  gender: Joi.number().valid(0,1),
-
-})
-
-router.route({
-  method: 'post',
-  path: '/regiest',
-  meta: {
-    swagger: {
-      summary: '注册',
-      tags
-    }
-  },
-  validate: {
-
-  },
-  handler: async ctx => {
-    ctx.body = { status: 'done' }
-  }
+  password
 })
 
 router.route({
@@ -41,7 +24,6 @@ router.route({
     summary: 'Login user with email and password',
     tags
   }},
-
   // validate: {
   //   type: 'json',
   //   body: person_login.keys({
@@ -77,7 +59,11 @@ router.route({
       tags
     }
   },
-  handler: []
+  handler:[ async ctx => {
+    console.log(ctx.request.body)
+    const user = await User.create(lodash.assign(ctx.request.body, {profile: {}, real_info: {}}), {include: [Profile, RealInfo]})
+    ctx.body = { user }
+  }]
 })
 
 router.route({
@@ -112,14 +98,44 @@ router.route({
   }
 })
 
-// router.route({
-//   method: 'post',
-//   path: '/',
-//   meta: {
-//     swagger: {
-//       sumary: 'Create user',
-//       tags
-//     }
-//   },
-//   handler: []
-// })
+router.route({
+  method: 'put',
+  path: '/:id(me|\\d+)',
+  meta: {
+    swagger: {
+      summary: 'Update user info',
+      tags
+    }
+  },
+  handler: [async ctx => {
+    const params = ctx.request.body
+    let user = await User.findOne({where: {id: ctx.request.params.id}})
+    if(Number(user.status) < User.accountStatus.Normal) {
+      if(params.profile) {
+        params.status = User.accountStatus.NoRealInfo
+      }
+      if(params.real_info) {
+        params.status = User.accountStatus.Normal
+      }
+    }
+    await user.update(params)
+    ctx.body = {user}
+  }]
+})
+
+router.route({
+  method: 'delete',
+  path: '/:id(me|\\d+)',
+  meta: {
+    swagger: {
+      summary: 'delete user',
+      tags
+    }
+  },
+  handler: [async ctx  => {
+    await User.destroy({where: {
+      id: ctx.request.params.id
+    }})
+    ctx.body={done: true}
+  }]
+})

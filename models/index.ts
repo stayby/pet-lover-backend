@@ -1,6 +1,8 @@
 import { Sequelize } from "sequelize-typescript";
 
 export { User, RoleLevel } from "./sequelize/User";
+export { Profile } from './sequelize/Profile'
+export { RealInfo } from './sequelize/RealInfo'
 
 let log_db = false;
 export const enable_log_db = (enable: boolean): void => {
@@ -19,7 +21,7 @@ export const db = new Sequelize(process.env.PG_CONNECT_STRING || "", {
   // logging: db_logger,
   define: {
     underscored: true,
-    timestamps: false,
+    timestamps: true,
     charset: "utf8mb4",
   },
   dialectOptions: {

@@ -25,6 +25,7 @@ $ npm run ncu
 在测试环境中进行开发
 
 ``` bash
+$ docker compose up
 $ npm run dev
 ```
 
