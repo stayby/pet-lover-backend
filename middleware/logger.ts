@@ -1,10 +1,13 @@
 import Boom from 'boom'
 import Koa from 'koa'
 
+const log = console
 const boom = async (ctx: any, next: Function) => {
   try {
     await next()
   }catch(error) {
+    console.log('catch error#####')
+    console.log(error)
     if(typeof error.status === 'number') {
       ctx.status = error.status
       if(error.details) {
@@ -39,8 +42,8 @@ const boom = async (ctx: any, next: Function) => {
       //   log.error(str(ctx._boom.output.payload))
       // } else {
       //   // 4xx errors will go through here and be logged.
-      //   log.error(ctx.body.messages || ctx.body.message)
-      //   log.error(error)
+        log.error(ctx.body.messages || ctx.body.message)
+        log.error(error)
     }
   }
 }

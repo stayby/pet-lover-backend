@@ -1,6 +1,9 @@
-import { Table, Column, Model, IsIn, HasOne, DefaultScope, DataType } from "sequelize-typescript";
+import { Table, Column, Model, IsIn, HasOne, DefaultScope, DataType, Is } from "sequelize-typescript";
 import {Profile} from './Profile'
 import { RealInfo } from "./RealInfo";
+import Boom from 'boom'
+import crypto from 'crypto'
+import jwt from 'jsonwebtoken'
 // import { NOW } from "sequelize";
 
 export const RoleLevel = {
@@ -12,7 +15,7 @@ export const RoleLevel = {
 };
 
 @DefaultScope(() => ({
-  attributes: { exclude: ['password', 'salt', 'hash'] },
+  attributes: { exclude: ['salt', 'hash'] },
   include: [
     {model: Profile},
     {model: RealInfo}
@@ -46,13 +49,37 @@ export class User extends Model<User> {
   })
   role: number;
 
+  @Is(/^[a-z0-9]{64}$/)
+  @Column({
+    type: DataType.STRING(64),
+    allowNull: false
+  })
+  salt: string
+
+  @Is(/^[a-z0-9]{64}$/)
+  @Column({
+    type: DataType.STRING(64),
+    allowNull: false
+  })
+  hash: string
+
   @Column({
     unique: true
   })
   nickname: string;
 
-  @Column
-  password: string;
+  @Column({
+    type: new DataType.VIRTUAL(DataType.STRING)
+  })
+  set password(password: string) {
+    if (!password || password.length < 6) {
+      throw Boom.expectationFailed('password should have at least 6 characters')
+    }
+    const buf = crypto.randomBytes(32)
+    const salt = buf.toString('hex')
+    this.setDataValue('salt', salt)
+    this.setDataValue('hash', User.hash(password, salt))
+  }
 
   @Column({
     defaultValue: User.accountStatus.NoProfile,
@@ -77,5 +104,35 @@ export class User extends Model<User> {
       }
     }
     return false;
+  }
+
+  generateToken(): string {
+    console.log('generateToken process.env.AUTH_SECRET===', process.env.AUTH_SECRET)
+    return jwt.sign({
+      id: this.id,
+      // limited: this.profile ? !!this.profile.password_reset_required : false
+    }, process.env.AUTH_SECRET)
+  }
+
+  static hash(password: string, salt: string) {
+    return crypto.pbkdf2Sync(password, salt, 10000, 32, 'sha512').toString('hex')
+  }
+
+  // toJSON() {
+  //   const json = this.get({ plain: true })
+  //   delete json.salt
+  //   delete json.hash
+  //   // check if the client has new message
+  //   if (json.messages && json.messages.length > 0) {
+  //     json.new_message = true
+  //   } else {
+  //     json.new_message = false
+  //   }
+  //   delete json.messages
+  //   return json
+  // }
+
+  matchPassword(password: string): boolean {
+    return this.hash === User.hash(password, this.salt)
   }
 }

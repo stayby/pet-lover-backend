@@ -26,7 +26,8 @@
     "redis": "^3.1.2",
     "sequelize": "^6.6.5",
     "sequelize-typescript": "^2.1.0",
-    "tencent-serverless-http": "^1.1.0"
+    "tencent-serverless-http": "^1.1.0",
+    "tencentcloud-sdk-nodejs": "^4.0.219"
   },
   "devDependencies": {
     "@types/koa": "^2.13.3",

@@ -1,5 +1,7 @@
 import Router from 'koa-joi-router'
-import lodash from 'lodash'
+import _ from 'lodash'
+import Boom from 'boom'
+import { acl } from '../middleware'
 import {User, Profile, RealInfo} from '../models'
 
 
@@ -39,14 +41,21 @@ router.route({
   //   }
   // },
   handler: async ctx => {
-    const { password, app, phone} = ctx.request.body
-    let user = await User.unscoped().findOne({where: {phone}})
+    const { password, app, phone, email} = ctx.request.body
+    let where = {}
+    if(phone) where = {phone}
+    else if (email) where = {email}
+    let user = await User.unscoped().findOne({where})
     if(!user) {
-      throw new Error()
+      throw Boom.notFound(`${phone || email} is not registered`)
     }
-    // const token = person.generateToken()
+    if (!user.matchPassword(password)) {
+      throw Boom.forbidden(`${phone || email} Wrong password`)
+    }
+
+    const token = user.generateToken()
     // person = await Person.Cached.findByPk(person.id)
-    ctx.body = { user }
+    ctx.body = { user, token }
   }
 })
 
@@ -61,7 +70,7 @@ router.route({
   },
   handler:[ async ctx => {
     console.log(ctx.request.body)
-    const user = await User.create(lodash.assign(ctx.request.body, {profile: {}, real_info: {}}), {include: [Profile, RealInfo]})
+    const user = await User.create(_.assign(ctx.request.body, {profile: {}, real_info: {}}), {include: [Profile, RealInfo]})
     ctx.body = { user }
   }]
 })
@@ -75,10 +84,10 @@ router.route({
       tags
     }
   },
-  handler: []
-  // async ctx => {
-
-  // }
+  handler: [acl.any, async ctx => {
+    const users = await User.findAll()
+    ctx.body = {users}
+  }]
 })
 
 router.route({
@@ -90,12 +99,12 @@ router.route({
       tags
     }
   },
-  handler: async ctx => {
+  handler: [acl.any, async ctx => {
     const {id} = ctx.request.params
     const  user = await User.findOne({where: {id: Number(id)}}
     )
     ctx.body={user}
-  }
+  }]
 })
 
 router.route({
@@ -107,7 +116,7 @@ router.route({
       tags
     }
   },
-  handler: [async ctx => {
+  handler: [acl.any, async ctx => {
     const params = ctx.request.body
     let user = await User.findOne({where: {id: ctx.request.params.id}})
     if(Number(user.status) < User.accountStatus.Normal) {

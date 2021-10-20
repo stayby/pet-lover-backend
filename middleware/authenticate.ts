@@ -1,8 +1,6 @@
-import * as Boom from "boom";
-import * as jwt from "jsonwebtoken";
+import  Boom from "boom";
+import  jwt from "jsonwebtoken";
 import { User, RoleLevel } from "../models";
-
-const secret = process.env.AUTH_SECRET;
 
 const Bearer = /^Bearer (\S*)$/;
 
@@ -35,7 +33,7 @@ function decode_authorization(ctx: any) {
   const token = jwt_m[1];
   let user;
   try {
-    user = jwt.verify(token, secret);
+    user = jwt.verify(token, process.env.AUTH_SECRET);
   } catch (err) {
     return null;
   }
@@ -53,7 +51,7 @@ async function jwt_authenticate(authorization: string): Promise<User> {
   const token = jwt_m[1];
   let user;
   try {
-    user = jwt.verify(token, secret);
+    user = jwt.verify(token, process.env.AUTH_SECRET);
   } catch (err) {
     throw Boom.unauthorized("Invalid token");
   }
