@@ -1,30 +1,29 @@
 import { Table, Column, Model, IsIn, HasOne, DefaultScope, DataType, Is } from "sequelize-typescript";
-import {Profile} from './Profile'
+import { db } from '../index'
+import { Profile } from './Profile'
 import { RealInfo } from "./RealInfo";
+import { Attachment } from './Attachment'
+import { RoleLevel } from '../enum'
 import Boom from 'boom'
 import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
-// import { NOW } from "sequelize";
-
-export const RoleLevel = {
-  adopter: 1 << 0, // 领养人
-  salvor: 1 << 1, // 救助人
-  contributor: 1 << 2, // 协助人，
-  editor: 1 << 3, // 后台编辑
-  admin: 1 << 10,
-};
 
 @DefaultScope(() => ({
   attributes: { exclude: ['salt', 'hash'] },
   include: [
     {model: Profile},
-    {model: RealInfo}
+    {model: RealInfo},
+    {
+      model: Attachment,
+      as: 'avatar'
+    }
   ]
 }))
 @Table
 export class User extends Model<User> {
 
   static accountStatus = {
+    NoNickname: 0,
     NoProfile: 1,
     NoRealInfo: 2,
     Normal: 3,
@@ -42,6 +41,13 @@ export class User extends Model<User> {
   })
   @Column
   email: string;
+
+  @HasOne(() => Attachment, {
+    foreignKey: 'attachable_id',
+    constraints: false,
+    scope: { attachable: 'person.avatar' }
+  } as any)
+  avatar: Attachment
 
   @IsIn([Object.keys(RoleLevel).map(key => RoleLevel[key])])
   @Column({
@@ -82,10 +88,15 @@ export class User extends Model<User> {
   }
 
   @Column({
-    defaultValue: User.accountStatus.NoProfile,
+    defaultValue: User.accountStatus.NoNickname,
     type: DataType.ENUM(...Object.keys(User.accountStatus))
   })
   status: keyof typeof User.accountStatus
+
+  @Column({
+    defaultValue: 0
+  })
+  password_changed: number
 
   @HasOne(() => Profile, {
     foreignKey: 'user_id',
@@ -134,5 +145,20 @@ export class User extends Model<User> {
 
   matchPassword(password: string): boolean {
     return this.hash === User.hash(password, this.salt)
+  }
+
+  static async deletion(user_id: string) {
+    await db.transaction(async (transaction) => {
+      await Attachment.destroy({
+        where: {
+          attachable: 'person.avatar',
+          attachable_id: user_id
+        },
+        transaction
+      })
+      await User.destroy({where: {
+          id: user_id
+        }, transaction})
+    })
   }
 }

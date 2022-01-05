@@ -1,5 +1,5 @@
 import { Table, Column, Model, ForeignKey, IsIn, DataType } from "sequelize-typescript";
-import {User} from './User'
+import { User } from './User'
 
 @Table
 export class Profile extends Model<Profile> {
@@ -21,5 +21,4 @@ export class Profile extends Model<Profile> {
   @Column(DataType.TEXT)
   intreduction: string
 
-  // todo avatar......
 }

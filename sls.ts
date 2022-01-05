@@ -1,5 +1,6 @@
 import * as dotenv from "dotenv";
 
+dotenv.config();
 
 import Koa from "koa";
 // import convert from 'koa-convert'
@@ -8,6 +9,8 @@ import routers from "./routers";
 import bodyParser from "koa-bodyparser";
 import cors from "@koa/cors";
 import { logger, acl } from "./middleware";
+
+
 
 const _addRoute = Router.prototype._addRoute;
 // const defaultInjectors = injectors(person_injector, attachment_injector)
@@ -18,7 +21,8 @@ const _addRoute = Router.prototype._addRoute;
 //     ctx.body = await ctx.core()
 //   }
 // }
-dotenv.config();
+
+
 
 Router.prototype._addRoute = function addRoute(spec: Router.Spec) {
   const handler = Array.isArray(spec.handler) ? spec.handler : [spec.handler];
@@ -61,9 +65,14 @@ app.use(logger());
 app.use(
   bodyParser({
     jsonLimit: "16mb",
+    enableTypes:['json', 'form', 'text'],
+    encode: "utf-8"
   })
 );
 
+
 app.use(routers.middleware());
+
+
 
 export default app;

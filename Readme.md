@@ -22,12 +22,16 @@ $ serverless install --url https://github.com/shfshanyue/serverless-template-zh/
 $ npm run ncu
 ```
 
-在测试环境中进行开发
+### 在测试环境中进行开发
 
 ``` bash
 $ docker compose up
 $ npm run dev
 ```
+
+本地API docs: http://localhost:3333/apiDocs
+本地DB: http://localhost:8080/?pgsql=db&username=pet-lover&db=pet-lover&ns=public&select=users
+Wiki: https://github.com/stayby/pet-lover-backend/wiki
 
 
 ### 文件结构

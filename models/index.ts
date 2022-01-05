@@ -1,8 +1,12 @@
 import { Sequelize } from "sequelize-typescript";
 
-export { User, RoleLevel } from "./sequelize/User";
+export { User } from "./sequelize/User";
 export { Profile } from './sequelize/Profile'
 export { RealInfo } from './sequelize/RealInfo'
+export { Attachment } from './sequelize/Attachment'
+export { Pet } from './sequelize/Pet'
+
+export { RoleLevel } from './enum'
 
 let log_db = false;
 export const enable_log_db = (enable: boolean): void => {
@@ -19,10 +23,13 @@ console.log("string", process.env.PG_CONNECT_STRING);
 
 export const db = new Sequelize(process.env.PG_CONNECT_STRING || "", {
   // logging: db_logger,
+  // operatorsAliases: false as any,
   define: {
     underscored: true,
     timestamps: true,
     charset: "utf8mb4",
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
   },
   dialectOptions: {
     charset: "utf8mb4",

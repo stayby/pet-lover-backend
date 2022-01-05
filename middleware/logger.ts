@@ -7,7 +7,7 @@ const boom = async (ctx: any, next: Function) => {
     await next()
   }catch(error) {
     console.log('catch error#####')
-    console.log(error)
+    console.error(error)
     if(typeof error.status === 'number') {
       ctx.status = error.status
       if(error.details) {

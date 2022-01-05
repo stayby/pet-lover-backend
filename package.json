@@ -9,11 +9,16 @@
     "build": "tsc",
     "predeploy": "npm ci --production"
   },
+  "nodemonConfig": {
+
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@koa/cors": "^3.1.0",
+    "@koa/multer": "^3.0.0",
     "boom": "^7.3.0",
+    "cos-nodejs-sdk-v5": "^2.10.6",
     "jsonwebtoken": "^8.5.1",
     "koa": "^2.11.0",
     "koa-bodyparser": "^4.3.0",
@@ -33,6 +38,7 @@
     "@types/koa": "^2.13.3",
     "@types/koa-joi-router": "^8.0.0",
     "@types/koa-joi-router-docs": "^1.0.0",
+    "@types/koa-multer": "^1.0.1",
     "@types/sequelize": "^4.28.10",
     "@types/yamljs": "^0.2.31",
     "dotenv": "^10.0.0",

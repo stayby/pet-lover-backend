@@ -67,6 +67,9 @@ async function jwt_authenticate(authorization: string): Promise<User> {
 function authenticate(check_fn: (user: User) => void) {
   return async function authenticate(ctx: any, next: Function) {
     if (ctx.state.user) {
+      if(Number(ctx.state.user.status) === User.accountStatus.Abnormal) {
+        throw Boom.locked('您的账号已被冻结，请联系管理员')
+      }
       return next();
     }
 

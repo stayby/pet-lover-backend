@@ -2,6 +2,7 @@
 import Router from 'koa-joi-router'
 // import Tencentcloud from  'tencent-serverless-http'
 import Boom from 'boom'
+import {User} from '../models'
 const tags = ['sms']
 
 const cacheCode = {}
@@ -9,6 +10,25 @@ const cacheCode = {}
 const expiration = 5 * 60 * 1000
 
 export const router = Router()
+
+export const verilySmsCode = (phone, code) => {
+  clearCacheCode()
+  if(cacheCode[phone] ) {
+    if(cacheCode[phone].used === 2) {
+      throw Boom.badData("验证码已使用")
+    }else if (cacheCode[phone].num > 3) {
+      throw Boom.badData("验证码次过多")
+    }else if(code !== cacheCode[phone].code) {
+      throw Boom.badData("验证码不正确")
+    }else {
+      cacheCode[phone].used = 2
+      cacheCode[phone].num++
+      return true
+    }
+  }else {
+    throw Boom.badData("验证码不正确")
+  }
+}
 
 router.route({
   method: 'post',
@@ -19,13 +39,16 @@ router.route({
   }},
   handler: [async ctx => {
     const {phone} = ctx.request.body
+    // const user = User.findOne({where: {phone}})
+    // if(user){
+    //   throw Boom.badRequest('phone is unique')
+    // }
     const sessionCode = getSms()
-    console.log('======sessionCode======', sessionCode)
     try{
       await sendSms(phone, sessionCode.code)
-    sessionCode.sendTime = new Date().getTime()
-    cacheCode[phone] = sessionCode
-    ctx.body = {done: true}
+      sessionCode.sendTime = new Date().getTime()
+      cacheCode[phone] = sessionCode
+      ctx.body = {done: true}
     }catch(error) {
       console.error(error)
       throw error
@@ -44,23 +67,10 @@ router.route({
   },
   handler: [async ctx=> {
     const {phone, code} = ctx.request.body
-    clearCacheCode()
-    if(cacheCode[phone] ) {
-      if(cacheCode[phone].used === 2) {
-        throw Boom.badData("验证码已使用")
-      }else if (cacheCode[phone].num > 3) {
-        throw Boom.badData("验证码次过多")
-      }else if(code !== cacheCode[phone].code) {
-        throw Boom.badData("验证码不正确")
-      }else {
-        cacheCode[phone].used = 2
-        cacheCode[phone].num++
-        ctx.body={done: true}
-      }
-    }else {
-      throw Boom.badData("验证码不正确")
-    }
 
+    if(verilySmsCode(phone, code)) {
+      ctx.body={ done: true }
+    }
   }]
 })
 
