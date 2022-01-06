@@ -46,11 +46,7 @@ Router.prototype._addRoute = function addRoute(spec: Router.Spec) {
 const app = new Koa();
 const port = process.env.PORT || 3333;
 
-const server = app.listen(port, () => {
-  console.log(`app listening on port ${port}`);
-});
 
-server.setTimeout(10 * 60 * 1000);
 
 app.use(
   cors({
@@ -65,7 +61,7 @@ app.use(logger());
 app.use(
   bodyParser({
     jsonLimit: "16mb",
-    enableTypes:['json', 'form', 'text'],
+    enableTypes: ['json', 'form', 'text'],
     encode: "utf-8"
   })
 );
@@ -74,5 +70,18 @@ app.use(
 app.use(routers.middleware());
 
 
+const isServerless = process.env.SERVERLESS
 
-export default app;
+if (isServerless) {
+  module.exports = app
+} else {
+  const server = app.listen(port, () => {
+    console.log(`app listening on port ${port}`);
+  });
+
+  server.setTimeout(10 * 60 * 1000);
+}
+
+
+
+// export default app;

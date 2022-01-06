@@ -1,5 +1,5 @@
 import Router from 'koa-joi-router'
-import {db} from '../models'
+import { db } from '../models'
 import Boom from 'boom'
 
 const Joi = Router.Joi
@@ -15,7 +15,9 @@ router.route({
       tags: ['test']
     }
   },
-  handler : ctx => ctx.body = process.env.stage
+  handler: ctx => {
+    ctx.body = { env: process.env.stage }
+  }
 })
 
 router.route({
@@ -27,7 +29,7 @@ router.route({
       tags: ['test']
     }
   },
-  handler : async ctx => {
+  handler: async ctx => {
     try {
       await db.authenticate();
       console.log('Connection has been established successfully.');
@@ -45,7 +47,7 @@ router.route({
   path: '/error/:status',
   method: 'get',
   meta: {
-    swagger:{
+    swagger: {
       summary: 'return error',
       tags: ['test']
     }
@@ -61,9 +63,9 @@ router.route({
     }
   },
   handler: ctx => {
-    const {status} = ctx.request.params
+    const { status } = ctx.request.params
     ctx.body = { status }
-    switch(status) {
+    switch (status) {
       case '400': throw Boom.badRequest('Bad request')
       case '401': throw Boom.unauthorized('Invalid password')
       case '402': throw Boom.paymentRequired('Bandwidth used')

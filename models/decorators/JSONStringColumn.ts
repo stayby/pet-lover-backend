@@ -1,13 +1,13 @@
 import { DataType, addAttribute } from 'sequelize-typescript'
 
-import { log } from '../../logger'
+// import { log } from '../../logger'
 
 // if raw data is pure string,just return it.
 export default (target: any, propertyName: string, propertyDescriptor?: PropertyDescriptor) => {
   const options = {
     // since json strings can be huge (like uploaded healthkit records) use
     // mediumtext type which allows 16MB size strings.
-    type: DataType.TEXT('medium'),
+    type: DataType.TEXT, //DataType.TEXT('medium'),
     get() {
       const raw = this.getDataValue(propertyName)
       if (!raw) return undefined
@@ -22,7 +22,7 @@ export default (target: any, propertyName: string, propertyDescriptor?: Property
       // warn about json that is large, but still allow it to be saved.
       const warn_size = (value: string) => {
         if (value && value.length > 256 * 1024) {
-          log.info(`json column [${propertyName}] set to long string (length ${value.length})`)
+          // log.info(`json column [${propertyName}] set to long string (length ${value.length})`)
         }
       }
 

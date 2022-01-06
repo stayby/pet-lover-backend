@@ -1,0 +1,4 @@
+#!/bin/bash
+/var/lang/node12/bin/node sls.js
+
+# node dist/sls.js

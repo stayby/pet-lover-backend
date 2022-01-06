@@ -2,16 +2,14 @@
   "name": "server",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/app.js",
+  "main": "dist/sls.js",
   "scripts": {
     "dev": "nodemon sls.ts",
     "ncu": "ncu",
     "build": "tsc",
     "predeploy": "npm ci --production"
   },
-  "nodemonConfig": {
-
-  },
+  "nodemonConfig": {},
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -26,12 +24,14 @@
     "koa-joi-router": "6.0.0",
     "koa-joi-router-docs": "^1.2.1",
     "lodash": "^4.17.21",
+    "multer": "^1.4.4",
     "pg": "^8.6.0",
     "pg-hstore": "^2.3.3",
     "redis": "^3.1.2",
     "sequelize": "^6.6.5",
     "sequelize-typescript": "^2.1.0",
     "tencent-serverless-http": "^1.1.0",
+    "dotenv": "^10.0.0",
     "tencentcloud-sdk-nodejs": "^4.0.219"
   },
   "devDependencies": {
@@ -41,7 +41,6 @@
     "@types/koa-multer": "^1.0.1",
     "@types/sequelize": "^4.28.10",
     "@types/yamljs": "^0.2.31",
-    "dotenv": "^10.0.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.0",

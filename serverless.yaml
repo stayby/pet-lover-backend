@@ -1,11 +1,12 @@
 component: koa # (required) name of the component. In that case, it's koa.
-app: pet-lover-serverless-api # (optional) serverless dashboard app. default is the same as the name property.
+app: pet-lover # (optional) serverless dashboard app. default is the same as the name property.
 name: pet-lover-api # (required) name of your koa component instance.
 
 inputs:
   src:
-    hook: npm run build
+    hook: npm run build && cp node_modules dist
     src: ./ # (optional) path to the source folder. default is a hello world app.
+    dist: ./dist
     exclude:
       - .env
   functionName: ${name} # 云函数名称。使用此配置文件中的name（组件实例名称）
@@ -14,9 +15,10 @@ inputs:
   functionConf: # 函数配置
     timeout: 30 # 超时时间，单位秒
     vpcConfig: # 私有网络配置
-      vpcId: ${output:${stage}:${app}:pet-lover-vpc.vpcId}  # 私有网络Id
+      vpcId: ${output:${stage}:${app}:pet-lover-vpc.vpcId} # 私有网络Id
       subnetId: ${output:${stage}:${app}:pet-lover-vpc.subnetId} # 子网Id
     environment: # 环境变量
+      PORT: 9000
       variables:
         PG_CONNECT_STRING: ${output:${stage}:${app}:pet-lover-db.private.connectionString}
   apigatewayConf: # API 网关

@@ -1,5 +1,5 @@
 import { DataType, addAttribute } from 'sequelize-typescript'
-import { EncryptedColumnUtil } from '../../../lib'
+// import { EncryptedColumnUtil } from '../../../lib'
 import moment from 'moment'
 
 export enum EncryptedColumnTypeEnum {
@@ -35,15 +35,17 @@ export default (fieldType: any) => {
       get() {
         const raw = this.getDataValue(propertyName)
         if (raw && raw !== null) {
-          const decryptedStr = EncryptedColumnUtil.decrypt85(raw)
-          return _converter(fieldType, decryptedStr)
+          // const decryptedStr = EncryptedColumnUtil.decrypt85(raw)
+          // return _converter(fieldType, decryptedStr)
+          return null
         } else {
           return null
         }
       },
       set(val: any) {
         if (val && val !== null) {
-          this.setDataValue(propertyName, EncryptedColumnUtil.encrypt85(val.toString()))
+          // this.setDataValue(propertyName, EncryptedColumnUtil.encrypt85(val.toString()))
+
         } else {
           this.setDataValue(propertyName, null)
         }

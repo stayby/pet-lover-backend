@@ -3,6 +3,8 @@ import Boom from 'boom'
 import { acl } from '../middleware'
 import { User, Pet, Attachment, RoleLevel } from '../models'
 import multer from '@koa/multer'
+// import multer from '@types/koa-multer'
+import store from '../models/store'
 
 const tags = ['pet']
 
@@ -122,7 +124,6 @@ router.route({
   }]
 })
 
-
 router.route({
   method: 'post',
   path: '/:id/album',
@@ -137,6 +138,31 @@ router.route({
     const { originalname, buffer } = ctx.file
     const attachment = await Attachment.upload(pet, 'album', originalname, buffer, ctx.request.body)
     ctx.body = { attachment }
+  }]
+})
+
+router.route({
+  method: 'delete',
+  path: '/album/:id',
+  meta: {
+    swagger: {
+      summary: 'delete a attachment from pet album',
+      tags
+    }
+  },
+  handler: [acl.any, check_permission, async ctx => {
+    // const user = ctx.state.user
+    // const { pet_id } = ctx.query
+    // const pet = await Pet.findOne({ where: { id: pet_id } })
+    // if (user.id === pet.owner_id) {
+    const attachment = await Attachment.findOne({ where: { id: ctx.request.params.id } })
+    await attachment.destroy()
+    await store.deletion([attachment.cos_name])
+    ctx.body = { done: true }
+    // } else {
+    //   throw Boom.forbidden('Your operate is forbidden.')
+    // }
+
   }]
 })
 
