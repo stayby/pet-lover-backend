@@ -10,9 +10,6 @@ import bodyParser from "koa-bodyparser";
 import cors from "@koa/cors";
 import { logger, acl } from "./middleware";
 
-import { db } from "./models";
-db.sync({ alter: true });
-
 const _addRoute = Router.prototype._addRoute;
 // const defaultInjectors = injectors(person_injector, attachment_injector)
 
