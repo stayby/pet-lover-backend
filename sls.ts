@@ -10,7 +10,8 @@ import bodyParser from "koa-bodyparser";
 import cors from "@koa/cors";
 import { logger, acl } from "./middleware";
 
-
+import { db } from "./models";
+db.sync({ alter: true });
 
 const _addRoute = Router.prototype._addRoute;
 // const defaultInjectors = injectors(person_injector, attachment_injector)
@@ -21,8 +22,6 @@ const _addRoute = Router.prototype._addRoute;
 //     ctx.body = await ctx.core()
 //   }
 // }
-
-
 
 Router.prototype._addRoute = function addRoute(spec: Router.Spec) {
   const handler = Array.isArray(spec.handler) ? spec.handler : [spec.handler];
@@ -46,8 +45,6 @@ Router.prototype._addRoute = function addRoute(spec: Router.Spec) {
 const app = new Koa();
 const port = process.env.PORT || 3333;
 
-
-
 app.use(
   cors({
     maxAge: 86400,
@@ -61,19 +58,17 @@ app.use(logger());
 app.use(
   bodyParser({
     jsonLimit: "16mb",
-    enableTypes: ['json', 'form', 'text'],
-    encode: "utf-8"
+    enableTypes: ["json", "form", "text"],
+    encode: "utf-8",
   })
 );
 
-
 app.use(routers.middleware());
 
-
-const isServerless = process.env.SERVERLESS
+const isServerless = process.env.SERVERLESS;
 
 if (isServerless) {
-  module.exports = app
+  module.exports = app;
 } else {
   const server = app.listen(port, () => {
     console.log(`app listening on port ${port}`);
@@ -81,7 +76,5 @@ if (isServerless) {
 
   server.setTimeout(10 * 60 * 1000);
 }
-
-
 
 // export default app;

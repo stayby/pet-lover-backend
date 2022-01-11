@@ -1,12 +1,12 @@
 import { Sequelize } from "sequelize-typescript";
 
 export { User } from "./sequelize/User";
-export { Profile } from './sequelize/Profile'
-export { RealInfo } from './sequelize/RealInfo'
-export { Attachment } from './sequelize/Attachment'
-export { Pet } from './sequelize/Pet'
+export { Profile } from "./sequelize/Profile";
+export { RealInfo } from "./sequelize/RealInfo";
+export { Attachment } from "./sequelize/Attachment";
+export { Pet } from "./sequelize/Pet";
 
-export { RoleLevel } from './enum'
+export { RoleLevel } from "./enum";
 
 let log_db = false;
 export const enable_log_db = (enable: boolean): void => {
@@ -28,15 +28,12 @@ export const db = new Sequelize(process.env.PG_CONNECT_STRING || "", {
     underscored: true,
     timestamps: true,
     charset: "utf8mb4",
-    createdAt: 'created_at',
-    updatedAt: 'updated_at'
+    createdAt: "created_at",
+    updatedAt: "updated_at",
   },
   dialectOptions: {
     charset: "utf8mb4",
   },
-  modelPaths: [__dirname + "/sequelize"],
-  modelMatch: (filename: string, member: string) =>
-    filename[0].toUpperCase() === filename[0] && member.startsWith(filename),
+  models: [__dirname + "/sequelize"],
+  modelMatch: (filename: string, member: string) => filename === member,
 });
-
-db.sync({ alter: true });
