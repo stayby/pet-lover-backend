@@ -26,6 +26,7 @@ inputs:
         TENCENT_APP_ID: ${env:TENCENT_APP_ID}
         TENCENT_SECRET_ID: ${env:TENCENT_SECRET_ID}
         TENCENT_SECRET_KEY: ${env:TENCENT_SECRET_KEY}
+        AUTH_SECRET: ${env:AUTH_SECRET}
 
   apigatewayConf: # API 网关
     enableCORS: true # 允许跨域
